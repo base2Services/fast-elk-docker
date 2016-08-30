@@ -30,7 +30,9 @@ gosu elasticsearch /usr/share/elasticsearch/bin/plugin list 2>&1 | tee -a /usr/s
 
 set -e
 
-consul-template -template "/usr/share/elasticsearch/config/elasticsearch.yml.template:/usr/share/elasticsearch/config/elasticsearch.yml" -once
+#consul-template -template "/usr/share/elasticsearch/config/elasticsearch.yml.template:/usr/share/elasticsearch/config/elasticsearch.yml" -once
+envsubst < /usr/share/elasticsearch/config/elasticsearch.yml.template > /usr/share/elasticsearch/config/elasticsearch.yml
+
 cat /usr/share/elasticsearch/config/elasticsearch.yml | grep -v "^#" 
 #DAEMON_OPTS=" -De --default.path.home=$ES_HOME --default.path.logs=$LOG_DIR --default.path.data=$DATA_DIR --default.path.conf=$CONF_DIR"
 #elasticsearch ${DAEMON_OPTS}
