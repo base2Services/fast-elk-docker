@@ -119,14 +119,14 @@
 ### discovery.type: ec2
 ### discovery.ec2.tag.Role: search
 ### [% end %]
-cluser.name: {{ env "CLUSTER_NAME"}} 
+cluser.name: $CLUSTER_NAME 
 path.data: /data/elasticsearch
-gateway.recover_after_nodes: 1
-gateway.recover_after_time: 2m
-gateway.expected_nodes: 1
-discovery.zen.ping.multicast.enabled: false
-cloud.aws.region: ap-southeast-2
+gateway.recover_after_nodes: $RECOVER_AFTER_NODES
+gateway.recover_after_time: $RECOVER_AFTER_TIME
+gateway.expected_nodes: $EXPECTED_NODES
+discovery.zen.ping.multicast.enabled: $MULTICAST_ENABLED
+cloud.aws.region: $AWS_REGION
 #needs "ec2:DescribeInstances" and "ec2:DescribeTags"
-discovery.type: ec2
-discovery.ec2.tag.Role: search
+discovery.type: $DISCOVERY_TYPE
+discovery.ec2.tag.$TAG_ROLE: $TAG_ROLE_NAME
 network.host: 0.0.0.0
