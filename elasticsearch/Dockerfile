@@ -3,6 +3,8 @@ FROM elasticsearch
 RUN mkdir -p /data/elasticsearch
 RUN chown elasticsearch: /data/elasticsearch
 
+COPY build.properties /build.properties
+
 #BUG: consul-template not working on aws linux due to go issue with kernel - will be fixed later
 #RUN curl https://releases.hashicorp.com/consul-template/0.15.0/consul-template_0.15.0_linux_386.zip > /usr/src/consul-template_0.15.0_linux_386.zip
 #RUN cd /usr/src && unzip consul-template_0.15.0_linux_386.zip  && mv consul-template /usr/bin/consul-template
