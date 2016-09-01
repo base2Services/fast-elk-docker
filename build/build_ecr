@@ -5,6 +5,7 @@
 
 if [ "$#" -ne 3 ]; then
   echo "Need 3 arguments: account region tag (usually tag = build_number)"
+  exit 1
 fi
 
 set -e
@@ -19,13 +20,11 @@ export ECR="${REGISTRY_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com"
 
 env
 
-echo $ECR
-
 echo "login to ecr"
 eval `aws ecr get-login --region ${ECR_REGION}`
 
-echo "describe repos"
-aws --region ${ECR_REGION} ecr describe-repositories
+#echo "describe repos"
+#aws --region ${ECR_REGION} ecr describe-repositories
 
 PROPERTIES_FILE=$WORKSPACE/build.properties
 echo "build.tag=$TAG" >> $PROPERTIES_FILE
