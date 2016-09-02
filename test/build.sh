@@ -1,3 +1,7 @@
+#!/bin/bash
+
+set -e
+
 REPO="base2"
 TAG="latest"
 
