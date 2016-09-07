@@ -2,7 +2,7 @@ FROM kibana
 
 COPY build.properties /build.properties
 
-ENV ELASTICSEARCH_URL http://elasticsearch:9200
+ENV ELASTICSEARCH_URL http://172.17.0.1:9200
 
 RUN apt-get update && \
   apt-get upgrade -y && \
