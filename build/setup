@@ -1,0 +1,81 @@
+#!/bin/bash
+
+set -e
+
+export AZ=`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
+export REGION="`echo \"$EC2_AZ\" | sed -e 's:\([0-9][0-9]*\)[a-z]*\$:\\1:'`"
+export ACCOUNT=`curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep -oP '(?<="accountId" : ")[^"]*(?=")'`
+
+if [ -z ${ECR_REGION} ]; then
+  export ECR_REGION=$REGION
+fi
+
+if [ -z ${AWS_REGION} ]; then
+  export AWS_REGION=$REGION
+fi
+
+if [ -z ${REGISTRY_ID} ]; then
+  export REGISTRY_ID=$ACCOUNT
+fi
+
+if [ -z ${REPO_NAME} ]; then
+  export REPO_NAME=base2-fast-elk
+fi
+
+if [ -z ${ELK_TAG} ]; then
+  export ELK_TAG=latest
+fi
+
+if [ -z ${CLUSTER_NAME} ]; then
+  export CLUSTER_NAME=elk
+fi
+
+if [ -z ${ES_HEAP_SIZE} ]; then
+  export ES_HEAP_SIZE=10g
+fi
+
+if [ -z ${LS_HEAP_SIZE} ]; then
+  export LS_HEAP_SIZE=2g
+fi
+
+if [ -z ${LOGSTASH_PORTS} ]; then
+  export LOGSTASH_PORTS="-p 3515:3515 -p 3516:3516 -p 3523:3523 -p 3524:3524"
+fi
+
+export ECR="${REGISTRY_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com"
+echo "ECR is ${ECR}"
+
+echo "login to ecr"
+eval `/usr/local/bin/aws ecr get-login --region ${ECR_REGION}`
+
+if [ ${DEBUG} ]; then
+  env
+fi
+
+#we need this right in order to proceed
+#/usr/local/bin/aws --region ${ECR_REGION} ecr describe-repositories
+
+#we need this right to proceed
+#assume tag=Role=search
+/usr/local/bin/aws --region ${AWS_REGION} ec2 describe-instances --filters "Name=tag:Role,Values=search"
+
+docker pull $ECR/${REPO_NAME}/elasticsearch:${ELK_TAG}
+docker pull $ECR/${REPO_NAME}/logstash:${ELK_TAG}
+docker pull $ECR/${REPO_NAME}/kibana:${ELK_TAG}
+docker pull $ECR/${REPO_NAME}/nginx:${ELK_TAG} 
+
+docker images
+
+docker run -d --net=host -v /data/elasticsearch/:/data/elasticsearch/ \
+	-p 9200:9200 -p 9300:9300 \
+	-e "ES_HEAP_SIZE=${ES_HEAP_SIZE}" -e "AWS_REGION=${AWS_REGION}" -e "CLUSTER_NAME=${CLUSTER_NAME}" \
+	--ulimit nofile=65535:65535 \
+	--name elasticsearch $ECR/${REPO_NAME}/elasticsearch:${ELK_TAG} 
+
+docker run -d ${LOGSTASH_PORTS} \
+	-e "LS_HEAP_SIZE=${LS_HEAP_SIZE}" \
+	--name logstash $ECR/${REPO_NAME}/logstash:${ELK_TAG}
+
+docker run -d -v /data/elasticsearch/:/data/elasticsearch/ -p 5601:5601 --name kibana $ECR/${REPO_NAME}/kibana:${ELK_TAG}
+
+docker run -d -v /data/elasticsearch/:/data/elasticsearch/ -p 80:80 --name nginx --link kibana:kibana $ECR/${REPO_NAME}/nginx:${ELK_TAG}
