@@ -36,5 +36,9 @@ envsubst < /usr/share/elasticsearch/config/elasticsearch.yml.template > /usr/sha
 cat /usr/share/elasticsearch/config/elasticsearch.yml | grep -v "^#" 
 #DAEMON_OPTS=" -De --default.path.home=$ES_HOME --default.path.logs=$LOG_DIR --default.path.data=$DATA_DIR --default.path.conf=$CONF_DIR"
 #elasticsearch ${DAEMON_OPTS}
+
+AWS_PRIVATE_IP=`curl http://169.254.169.254/latest/meta-data/local-ipv4`
+DAEMON_OPTS=" --network.publish_host=$AWS_PRIVATE_IP "
+
 gosu elasticsearch elasticsearch ${DAEMON_OPTS}
 
