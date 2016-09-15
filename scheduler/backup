@@ -1,0 +1,35 @@
+#! /bin/bash
+
+if [ "$#" -ne 1 ]; then
+    echo "Need bucket name as arg"
+    exit 1
+fi
+
+DATE=`date '+%Y.%m.%d'`
+YEAR=`date '+%Y'`
+MONTH=`date '+%m'`
+INDEX=logstash-$DATE
+FILE=$INDEX.json.gz
+
+BACKUP_FOLDER=/data/backups/elasticdump
+BACKUP_BUCKET=$1
+
+mkdir -p $BACKUP_FOLDER
+
+# run if this is the master node
+export MASTERIP=`curl 'localhost:9200/_cat/master' | awk '{print $2}'`
+export LOCALIP=`curl http://169.254.169.254/2014-11-05/meta-data/local-ipv4`
+
+if [[ $LOCALIP == $MASTERIP ]]; then
+  elasticdump --input=http://localhost:9200/$INDEX --output=$ | gzip > $BACKUP_FOLDER/$FILE
+  if [ $? -eq 0 ] && [ -s $BACKUP_FOLDER/$FILE ]
+        then
+        # Send to S3
+                aws --region ap-southeast-2 s3 cp $BACKUP_FOLDER/$FILE s3://$BACKUP_BUCKET/$YEAR/$MONTH/
+
+        else
+                exit 1
+  fi
+  find $BACKUP_FOLDER -mtime +5 -name "*.gz" -exec rm -rf {} \;
+fi
+

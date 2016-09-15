@@ -1,0 +1,9 @@
+source 'https://rubygems.org'
+
+gem 'rack'
+gem 'rack-test'
+gem 'sinatra'
+gem 'rufus-scheduler'
+gem 'uri'
+gem 'json'
+gem 'pstore'
