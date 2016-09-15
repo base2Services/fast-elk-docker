@@ -7,23 +7,21 @@ RUN apt-get update &&\
      wget \
      unzip
 
-RUN apt-get install -y ruby-full
-RUN gem update --system
-RUN gem install bundler
-
-RUN apt-get update
-RUN apt-get install -y git build-essential nodejs
+RUN echo "install ruby" && \
+    apt-get install -y ruby-full && \
+    gem update --system  && \
+    gem install bundler
 
 RUN echo "install node" && \ 
     curl -sL https://deb.nodesource.com/setup_6.x | bash - && \
-    apt-get install nodejs && \
+    apt-get install -y nodejs && \
     npm install npm -g
 
 RUN npm install -g elasticdump
 
-RUN mkdir /opt/base2/bin
+RUN mkdir -p /opt/base2/bin
 
-COPY backup /opt/base2/backup
+COPY backup /opt/base2/bin/backup
 
 RUN apt-get clean -y  && \
    apt-get autoclean -y  && \
@@ -35,6 +33,8 @@ RUN apt-get clean -y  && \
 
 # grab gosu for easy step-down from root
 ENV GOSU_VERSION 1.7
+
+RUN echo "install gosu"
 RUN set -x \
 	&& wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)" \
 	&& wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc" \
