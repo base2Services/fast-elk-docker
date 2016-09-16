@@ -28,7 +28,7 @@ scheduler.cron '00 09 * * *' do
 end
 
 scheduler.cron '01 00 * * *'do
-  #command "/bin/bash /opt/es_backup.sh"
+  `/bin/bash /opt/base2/bin/backup`
 end
 
 #don't need this as sinatra will keep this alive

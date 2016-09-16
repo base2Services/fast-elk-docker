@@ -66,7 +66,7 @@ fi
 docker pull $ECR/${REPO_NAME}/elasticsearch:${ELK_TAG}
 docker pull $ECR/${REPO_NAME}/logstash:${ELK_TAG}
 docker pull $ECR/${REPO_NAME}/kibana:${ELK_TAG}
-docker pull $ECR/${REPO_NAME}/nginx:${ELK_TAG} 
+docker pull $ECR/${REPO_NAME}/nginx:${ELK_TAG}
 
 docker images
 
@@ -76,9 +76,9 @@ docker run -d -v /etc/localtime:/etc/localtime -v /data/elasticsearch/:/data/ela
 	-p 9200:9200 -p 9300:9300 \
 	-e "ES_HEAP_SIZE=${ES_HEAP_SIZE}" -e "AWS_REGION=${AWS_REGION}" -e "CLUSTER_NAME=${CLUSTER_NAME}" \
 	--ulimit nofile=65535:65535 \
-	--name elasticsearch $ECR/${REPO_NAME}/elasticsearch:${ELK_TAG} 
+	--name elasticsearch $ECR/${REPO_NAME}/elasticsearch:${ELK_TAG}
 
-docker run -d -v /etc/localtime:/etc/localtime \ 
+docker run -d -v /etc/localtime:/etc/localtime \
         ${LOGSTASH_PORTS} \
 	--log-opt "max-size=50m" \
 	-e "LS_HEAP_SIZE=${LS_HEAP_SIZE}" \
@@ -88,3 +88,10 @@ docker run -d -v /etc/localtime:/etc/localtime --log-opt "max-size=50m" -p 5601:
 
 docker run -d -v /etc/localtime:/etc/localtime --log-opt "max-size=50m" -p 80:80 --name nginx --link kibana:kibana $ECR/${REPO_NAME}/nginx:${ELK_TAG}
 
+if [ ${UTIL_LOGSTASH} ]; then
+  docker pull $ECR/${REPO_NAME}/util-logstash:${ELK_TAG}
+  docker run -d -v /etc/localtime:/etc/localtime \
+  	--log-opt "max-size=50m" \
+  	-e "LS_HEAP_SIZE=1g" \
+  	--name logstash $ECR/${REPO_NAME}/util-logstash:${ELK_TAG}
+fi

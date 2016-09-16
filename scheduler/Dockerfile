@@ -12,7 +12,7 @@ RUN echo "install ruby" && \
     gem update --system  && \
     gem install bundler
 
-RUN echo "install node" && \ 
+RUN echo "install node" && \
     curl -sL https://deb.nodesource.com/setup_6.x | bash - && \
     apt-get install -y nodejs && \
     npm install npm -g
