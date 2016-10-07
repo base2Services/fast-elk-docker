@@ -129,4 +129,5 @@ cloud.aws.region: $AWS_REGION
 #needs "ec2:DescribeInstances" and "ec2:DescribeTags"
 discovery.type: $DISCOVERY_TYPE
 discovery.ec2.tag.$TAG_ROLE: $TAG_ROLE_NAME
+network.publish_host: _ec2:privateIp_
 network.host: 0.0.0.0
