@@ -1,4 +1,4 @@
-FROM kibana
+FROM kibana:4
 
 COPY build.properties /build.properties
 

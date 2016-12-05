@@ -1,4 +1,4 @@
-FROM elasticsearch
+FROM elasticsearch:2
 
 RUN mkdir -p /data/elasticsearch
 RUN chown elasticsearch: /data/elasticsearch
