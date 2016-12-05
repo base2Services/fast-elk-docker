@@ -1,4 +1,4 @@
-FROM logstash
+FROM logstash:2
 
 COPY build.properties /build.properties
 
